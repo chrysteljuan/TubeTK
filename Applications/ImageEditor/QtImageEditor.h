@@ -28,6 +28,7 @@ limitations under the License.
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLineEdit>
+#include <QTabWidget>
 
 //itk includes
 #include "itkImage.h"
@@ -69,7 +70,7 @@ public:
 public:
 
 public slots:
-  //void toggleTextEdit(int viewDetail);
+
   void setMaximumSlice();
   void setDisplaySigma(QString value);
   void setInputImage(ImageType *newImData);
@@ -80,6 +81,7 @@ private slots:
   void setFilter();
 
 private:
+  QTabWidget  *m_TabWidget;
   QLineEdit   *m_SigmaLineEdit;
   ImageType   *m_ImageData;
 };

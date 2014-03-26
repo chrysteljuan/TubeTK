@@ -35,7 +35,7 @@ QtOverlayControlsWidget::QtOverlayControlsWidget(QWidget* parent)
   : QWidget(parent)
 {
   this->m_UI = new Ui::Overlay;
-  m_UI->setupUi(this);
+  this->m_UI->setupUi(this);
 }
 
 QtOverlayControlsWidget::~QtOverlayControlsWidget()
@@ -87,8 +87,9 @@ int QtOverlayControlsWidget::loadOverlay()
   QString pathOverlay = QFileDialog::getOpenFileName(
         0,"", QDir::currentPath());
 
-  if(pathOverlay.isEmpty())
+  if(pathOverlay.isNull())
     {
+    this->m_UI->OverlayCheckBox->setChecked(false);
     return 0;
     }
   overlayReader->SetFileName( pathOverlay.toLatin1().data() );
@@ -133,12 +134,12 @@ void QtOverlayControlsWidget::setOverlayVisibility(bool show)
       }
     else
       {
-      this->m_SliceView->setValidOverlayData(show);
+      this->m_SliceView->setValidOverlayData(true);
       }
     }
   else
     {
-    this->m_SliceView->setValidOverlayData(show);
+    this->m_SliceView->setValidOverlayData(false);
     }
   this->m_SliceView->update();
 }

@@ -41,42 +41,55 @@ QtImageEditor::QtImageEditor(QWidget* parent, Qt::WindowFlags fl ) :
   this->setupUi(this);
   this->Controls->setSliceView(this->OpenGlWindow);
 
-  QTabWidget *tabWidget = new QTabWidget(this);
-  tabWidget->setMaximumHeight(300);
+  this->m_TabWidget = new QTabWidget(this);
+  m_TabWidget->setMaximumHeight(300);
 
-  tabWidget->insertTab(0, this->Controls, "Controls");
+  m_TabWidget->insertTab(0, this->Controls, "Controls");
 
-  QWidget *filterControlWidget = new QWidget(tabWidget);
-  tabWidget->insertTab(1, filterControlWidget, "Filter");
+  QWidget *filterControlWidget = new QWidget(m_TabWidget);
+  m_TabWidget->insertTab(1, filterControlWidget, "Filter");
 
   QGridLayout *filterGridLayout = new QGridLayout(filterControlWidget);
   this->m_SigmaLineEdit = new QLineEdit();
+  QLabel *sigma = new QLabel("Sigma:");
+  QHBoxLayout *sigmaHBox = new QHBoxLayout();
   this->m_SigmaLineEdit->setMaximumWidth(80);
   this->m_SigmaLineEdit->setText("0.2");
-  filterGridLayout->addWidget(this->m_SigmaLineEdit, 0, 0);
+  sigmaHBox->addWidget(sigma);
+  sigmaHBox->addWidget(this->m_SigmaLineEdit);
+
+  QWidget *sigmaWidget = new QWidget();
+  sigmaWidget->setLayout(sigmaHBox);
+  sigmaWidget->setMaximumWidth(140);
+
+  filterGridLayout->addWidget(sigmaWidget, 0, 0);
 
   QPushButton *applyButton = new QPushButton();
   applyButton->setText("Apply");
   filterGridLayout->addWidget(applyButton, 0, 1);
 
-  QtOverlayControlsWidget *overlayWidget = new QtOverlayControlsWidget(tabWidget);
+  QtOverlayControlsWidget *overlayWidget = new QtOverlayControlsWidget(m_TabWidget);
   overlayWidget->setSliceView(this->OpenGlWindow);
-  tabWidget->insertTab(2, overlayWidget, "Overlay");
+  m_TabWidget->insertTab(2, overlayWidget, "Overlay");
 
   QDialogButtonBox *buttons = new QDialogButtonBox(Qt::Horizontal);
-  buttons->addButton(this->ButtonOk, QDialogButtonBox::AcceptRole);
+  //QDialogButtonBox::Close |
+  //QDialogButtonBox::Help | QDialogButtonBox::Open,
+
   QPushButton *loadImageButton = new QPushButton();
   loadImageButton->setText("Load");
 
   buttons->addButton(loadImageButton, QDialogButtonBox::ActionRole);
   buttons->addButton(this->ButtonHelp, QDialogButtonBox::HelpRole);
+  buttons->addButton(this->ButtonOk, QDialogButtonBox::RejectRole);
 
 
-  this->gridLayout->addWidget(buttons, 2, 0,1,2);
-  this->gridLayout->addWidget(tabWidget, 1, 0,1,2);
+  this->gridLayout->addWidget(buttons, 4, 0,1,2);
+  this->gridLayout->addWidget(m_TabWidget, 2, 0,2,2);
 
-  QObject::connect(ButtonOk, SIGNAL(clicked()), this, SLOT(accept()));
-  QObject::connect(ButtonHelp, SIGNAL(clicked()), OpenGlWindow, SLOT(showHelp()));
+  QObject::connect(buttons, SIGNAL(accepted()), this, SLOT(loadImage()));
+  QObject::connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
+  QObject::connect(buttons, SIGNAL(helpRequested()), OpenGlWindow, SLOT(showHelp()));
   QObject::connect(SliceNumSlider, SIGNAL(sliderMoved(int)), OpenGlWindow,
                    SLOT(changeSlice(int)));
   QObject::connect(OpenGlWindow, SIGNAL(sliceNumChanged(int)), SliceNumSlider,
@@ -90,33 +103,33 @@ QtImageEditor::QtImageEditor(QWidget* parent, Qt::WindowFlags fl ) :
                    SLOT(setDisplaySigma(QString)));
   QObject::connect(OpenGlWindow, SIGNAL(orientationChanged(int)), this,
                    SLOT(setMaximumSlice()));
-//  QObject::connect(OpenGlWindow, SIGNAL(viewDetailsChanged(int)), this,
-//                   SLOT(toggleTextEdit(int)));
+
   QObject::connect(loadImageButton, SIGNAL(clicked()), this, SLOT(loadImage()));
+
+  if(!OpenGlWindow->inputImage())
+    {
+    this->SliceNumSlider->setDisabled(true);
+    this->m_TabWidget->setDisabled(true);
+    }
 }
 
 QtImageEditor::~QtImageEditor()
 {
 }
 
-//void QtImageEditor::toggleTextEdit(int viewDetail)
-//{
-//  bool hidden;
-//  viewDetail = VD_TEXTBOX ? hidden = false : hidden  = true;
-//  this->Details->setHidden(hidden);
-//}
-
 
 void QtImageEditor::setInputImage(ImageType * newImData)
 {
+  if(!newImData)
+    {
+    return;
+    }
+  this->SliceNumSlider->setEnabled(true);
+  m_TabWidget->setEnabled(true);
   this->m_ImageData = newImData;
   this->OpenGlWindow->setInputImage(newImData);
-//  this->SliceNumSlider->setMaximum( static_cast<int>
-//                                    (this->OpenGlWindow->maxSliceNum() -1));
   setMaximumSlice();
   this->OpenGlWindow->changeSlice(((this->OpenGlWindow->maxSliceNum() -1)/2));
-  //this->SliceNumSlider->setValue(static_cast<int>
-//                                   (this->OpenGlWindow->sliceNum()));
   this->setDisplaySliceNumber(static_cast<int>
                                 (this->OpenGlWindow->sliceNum()));
   this->Controls->setInputImage();
