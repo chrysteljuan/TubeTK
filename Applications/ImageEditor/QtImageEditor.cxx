@@ -256,4 +256,68 @@ void QtImageEditor::setMaximumSlice()
                                  (this->SliceValue->text().toInt()));
 }
 
+extern "C" void  
+applyFFT(/*ImageType *newImData*/)  
+{  
+  // allocate device mem  
+  double ***src = (double***)malloc(5*sizeof(double**));    // 3D array definition;
+  // begin memory allocation
+  for (int i = 0; i < 5; i++) {
+    // Assign to array[i], not *array[i] (that would dereference an uninitialized pointer)
+    src[i] = (double**)malloc(5*sizeof(double*));
+    for (int j = 0; j < 5; j++) {
+      src[i][j] = (double*)malloc(5*sizeof(double));
+    }
+  }
+  double ***res = (double***)malloc(5*sizeof(double**));    // 3D array definition;
+  // begin memory allocation
+  for (int i = 0; i < 5; i++) {
+    // Assign to array[i], not *array[i] (that would dereference an uninitialized pointer)
+    res[i] = (double**)malloc(5*sizeof(double*));
+    for (int j = 0; j < 5; j++) {
+      res[i][j] = (double*)malloc(5*sizeof(double));
+    }
+  }
+  double size = 5 * 5 * 5 * sizeof(double) * 1;  
+  double*** d_src;
+  double*** d_res;
+  //double*** d_res;
+  cudaMalloc3D(&d_src, size);  
+  cudaMalloc3D(&d_res, size);   
+  
+  // transfer data from host to device 
+  cudaMemcpy3DParms parms_src = {0};
+  cudaMemcpy3DParms parms_res = {0};
+
+  parms_src.extent = size;
+  parms_src.kind = cudaMemcpyHostToDevice;
+  parms_src.dstPtr = d_src;
+  parms_src.srcPtr = src;
+
+  parms_res.extent = size;
+  parms_res.kind = cudaMemcpyHostToDevice;
+  parms_res.dstPtr = d_res;
+  parms_res.srcPtr = res;
+  cudaMemcpy3D(&parms_res);   
+  
+  // grid configuration  
+  const dim3 block(1, 1);  
+  const dim3 grid(8, 8);
+    /*grid((width / block.x) * numBytes,  
+                  (height / block.y) * numBytes);  */
+  
+  // launch the kernel  
+  d_applyFFT(grid, block)(d_src, d_res, size);  
+  
+  // mem copy data back from device to host 
+  parms_res.kind = cudaMemcpyDeviceToHost;
+  parms_res.dstPtr = res;
+  parms_res.srcPtr = d_res;
+  cudaMemcpy3D(&parms_res);  
+  
+  // free device memory  
+  cudaFree(d_src);  
+  cudaFree(d_res);  
+}  
+
 }

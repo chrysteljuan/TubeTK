@@ -24,6 +24,9 @@ limitations under the License.
 #ifndef __QtImageEditor_h
 #define __QtImageEditor_h
 
+#include <cuda.h>
+#include <cuda_runtime.h>
+
 //Qt includes
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -79,6 +82,7 @@ public slots:
   int loadImage();
   int loadOverlay(std::string path);
   void applyFilter();
+  void applyFFT(/*ImageType *newImData*/);
 
 private:
   QLineEdit               *m_SigmaLineEdit;
