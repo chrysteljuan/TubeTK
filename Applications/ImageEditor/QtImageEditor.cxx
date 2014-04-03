@@ -200,6 +200,7 @@ int QtImageEditor::loadImage()
 int QtImageEditor::loadOverlay(std::string path)
 {
   this->m_OverlayWidget->loadOverlay(path);
+  return 0;
 }
 
 

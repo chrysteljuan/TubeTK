@@ -43,6 +43,12 @@ include( ${SlicerExecutionModel_USE_FILE} )
 
 find_package( JsonCpp REQUIRED )
 
+find_package( CUDA REQUIRED )
+if( CUDA_FOUND )
+  message( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>J'ai trouve CUDA" )
+else( CUDA_FOUND )
+  message(">>>>>>>>>>>>>>> COUCOU ${CUDA_TOOLKIT_ROOT_DIR} CUDA_BIN ${CUDA_BIN_PATH} ")
+endif( CUDA_FOUND )
 set( ${MODULE_NAME}_SRCS
   QtImageEditor.cxx
   QtOverlayControlsWidget.cxx
@@ -60,10 +66,14 @@ set( ${MODULE_NAME}_GUI_SRCS
 set( ${MODULE_NAME}_RESOURCES
   Resources/qtImageEditorResources.qrc
   )
+set( ${MODULE_NAME}_CUDA
+  FFT.cu
+  )
 
 QT4_WRAP_UI( ${MODULE_NAME}_UI_CXX ${${MODULE_NAME}_GUI_SRCS} )
 QT4_WRAP_CPP( ${MODULE_NAME}_SRCS ${${MODULE_NAME}_MOC_SRCS} )
 QT4_ADD_RESOURCES( ${MODULE_NAME}_QRC_SRCS ${${MODULE_NAME}_RESOURCES} )
+CUDA_COMPILE( ${MODULE_NAME}_CUDA_SRCS ${${MODULE_NAME}_CUDA} )
 
 set( ${MODULE_NAME}_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -71,6 +81,7 @@ set( ${MODULE_NAME}_INCLUDE_DIRS
   ${ImageViewer_INCLUDE_DIRS}
   ${QT_INCLUDE_DIRS}
   ${OPENGL_INCLUDE_DIRS}
+  ${CUDA_INCLUDE_DIRS}
 )
 
 SEMMacroBuildCLI(
@@ -81,11 +92,14 @@ SEMMacroBuildCLI(
     ${${MODULE_NAME}_GUI_SRCS}
     ${${MODULE_NAME}_QRC_SRCS}
     ${${MODULE_NAME}_UI_CXX}
+    ${${MODULE_NAME}_CUDA_SRCS}
   TARGET_LIBRARIES
     ${ImageViewer_LIBRARIES}
     ${ITK_LIBRARIES}
     ${QT_LIBRARIES}
     ${OPENGL_LIBRARIES}
+    ${CUDA_LIBRARIES}
+    ${CUDA_CUFFT_LIBRARIES}
   INCLUDE_DIRECTORIES
     ${TubeTK_SOURCE_DIR}/Base/CLI
     ${TubeTK_SOURCE_DIR}/Base/Common

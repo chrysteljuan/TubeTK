@@ -33,8 +33,9 @@ set( CTK_URL ${github_protocol}://github.com/commontk/CTK.git )
 set( CTK_HASH_OR_TAG 7cf06ada5e490a06dab7efaa3aaf0cd784671253 )
 
 # TubeTK Image Viewer snapshot 2014-01-26
-set( ImageViewer_URL ${github_protocol}://github.com/chrysteljuan/TubeTK-ImageViewer.git )
-set( ImageViewer_HASH_OR_TAG 27a599f399d5f59caba3b1fc28de4d0687f0d244 )
+set( ImageViewer_URL
+  ${github_protocol}://github.com/chrysteljuan/TubeTK-ImageViewer.git )
+set( ImageViewer_HASH_OR_TAG d981c0961ddfb1f8f5aad77cde9ff17981a7b7b8 )
 
 # Insight Segmentation and Registration Toolkit
 set( ITK_URL ${github_protocol}://github.com/Kitware/ITK.git )
