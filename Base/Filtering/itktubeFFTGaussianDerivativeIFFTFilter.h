@@ -74,6 +74,7 @@ public:
   itkSetMacro( Sigmas, SigmasType );
   itkGetConstReferenceMacro( Sigmas, SigmasType );
 
+  itkGetConstReferenceMacro( KernelImage, typename RealImageType::Pointer  );
 protected:
   typedef itk::ForwardFFTImageFilter< InputImageType > FFTInputType;
   typedef typename FFTInputType::OutputImageType       ComplexImageType;
