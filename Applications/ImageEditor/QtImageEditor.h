@@ -44,16 +44,25 @@ class QtImageEditor
   : public QDialog, public Ui::GuiDialogBase
 {
   Q_OBJECT
+  Q_ENUMS(displayDetailsState)
 public:
 
   QtImageEditor( QWidget* parent = 0, Qt::WindowFlags fl = 0 );
   ~QtImageEditor();
+
+  enum displayDetailsState{
+    OFF = 0x00,
+    ON_SLICEVIEW = 0x01,
+    ON_TEXTBOX = 0x02,
+    OFF_COLLAPSE = 0x04
+  };
 
   typedef double                      PixelType;
   typedef itk::Image< PixelType, 3 >  ImageType;
 
 
 public slots:
+  void setDisplayState(int details);
   void hideHelp();
   void showHelp(bool checked);
   void setMaximumSlice();

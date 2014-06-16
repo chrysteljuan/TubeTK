@@ -42,7 +42,9 @@ int execImageEditor(int argc, char* argv[])
   tube::QtImageEditor qtSlicerWindow(0,0);
 
   qtSlicerWindow.setWindowTitle("ImageEditor");
+  qtSlicerWindow.loadImage();
   qtSlicerWindow.show();
+  qtSlicerWindow.OpenGlWindow->setFocus();
   int execReturn;
   try
     {
@@ -92,7 +94,7 @@ int parseAndExecImageEditor(int argc, char* argv[])
   qtSlicerWindow.OpenGlWindow->flipX(xFlipped);
   qtSlicerWindow.OpenGlWindow->setOverlayOpacity(overlayOpacity);
   qtSlicerWindow.OpenGlWindow->setViewCrosshairs(crosshairs);
-  qtSlicerWindow.OpenGlWindow->setViewDetails(details);
+  qtSlicerWindow.OpenGlWindow->setDisplayState(details);
   qtSlicerWindow.OpenGlWindow->setViewValuePhysicalUnits(physicalUnits);
   qtSlicerWindow.OpenGlWindow->setViewValue(value);
   qtSlicerWindow.OpenGlWindow->setViewAxisLabel(axisLabel);

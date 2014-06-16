@@ -89,6 +89,7 @@ protected:
   QLineEdit                  *m_Order_x;
   QLineEdit                  *m_Order_y;
   QLineEdit                  *m_Order_z;
+  QTabWidget                 *m_TabWidget;
 
 
   GaussianDerivativeSourceType::Pointer createGaussianDerivative(
@@ -171,14 +172,15 @@ QtImageEditor::QtImageEditor(QWidget* _parent, Qt::WindowFlags fl ) :
 
   this->setupUi(this);
   this->Controls->setSliceView(this->OpenGlWindow);
+  this->OpenGlWindow->setMaxDisplayStates(4);
 
-  QTabWidget *tabWidget = new QTabWidget(this);
-  tabWidget->setMaximumHeight(300);
+  this->m_Internals->m_TabWidget = new QTabWidget(this);
+  this->m_Internals->m_TabWidget->setMaximumHeight(300);
 
-  tabWidget->insertTab(0, this->Controls, "Controls");
+  this->m_Internals->m_TabWidget->insertTab(0, this->Controls, "Controls");
 
-  QWidget *filterControlWidget = new QWidget(tabWidget);
-  tabWidget->insertTab(1, filterControlWidget, "FFT Filter");
+  QWidget *filterControlWidget = new QWidget(this->m_Internals->m_TabWidget);
+  this->m_Internals->m_TabWidget->insertTab(1, filterControlWidget, "FFT Filter");
 
   QGridLayout *filterGridLayout = new QGridLayout(filterControlWidget);
   this->m_Internals->m_SigmaLineEdit = new QLineEdit();
@@ -215,9 +217,11 @@ QtImageEditor::QtImageEditor(QWidget* _parent, Qt::WindowFlags fl ) :
   gaussianButton->setText("FFT-BLUR-INVERSE FFT");
   filterGridLayout->addWidget(gaussianButton, 2, 4);
 
-  this->m_Internals->m_OverlayWidget = new QtOverlayControlsWidget(tabWidget);
+  this->m_Internals->m_OverlayWidget = new QtOverlayControlsWidget(
+        this->m_Internals->m_TabWidget);
   this->m_Internals->m_OverlayWidget->setSliceView(this->OpenGlWindow);
-  tabWidget->insertTab(2, this->m_Internals->m_OverlayWidget, "Overlay");
+  this->m_Internals->m_TabWidget->insertTab(2,
+        this->m_Internals->m_OverlayWidget, "Overlay");
 
   QDialogButtonBox *buttons = new QDialogButtonBox(Qt::Horizontal);
   buttons->addButton(this->ButtonOk, QDialogButtonBox::AcceptRole);
@@ -229,7 +233,7 @@ QtImageEditor::QtImageEditor(QWidget* _parent, Qt::WindowFlags fl ) :
 
 
   this->gridLayout->addWidget(buttons, 2, 0,1,2);
-  this->gridLayout->addWidget(tabWidget, 1, 0,1,2);
+  this->gridLayout->addWidget(this->m_Internals->m_TabWidget, 1, 0,1,2);
 
   QObject::connect(ButtonOk, SIGNAL(clicked()), this, SLOT(accept()));
   QObject::connect(ButtonHelp, SIGNAL(toggled(bool)), this, SLOT(showHelp(bool)));
@@ -251,10 +255,20 @@ QtImageEditor::QtImageEditor(QWidget* _parent, Qt::WindowFlags fl ) :
 //  QObject::connect(OpenGlWindow, SIGNAL(viewDetailsChanged(int)), this,
 //                   SLOT(toggleTextEdit(int)));
   QObject::connect(loadImageButton, SIGNAL(clicked()), this, SLOT(loadImage()));
+  QObject::connect(OpenGlWindow, SIGNAL(displayStateChanged(int)), this,
+                   SLOT(setDisplayState(int)));
 }
 
 QtImageEditor::~QtImageEditor()
 {
+}
+
+
+void QtImageEditor::setDisplayState(int details)
+{
+  const bool visible = !(details & OFF_COLLAPSE);
+  //this->Slider->setVisible(visible);
+  //this->m_Internals->m_TabWidget->setVisible(visible);
 }
 
 
